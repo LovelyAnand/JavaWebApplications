@@ -1,0 +1,46 @@
+package com.storage;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.tomcat.util.http.fileupload.FileItem;
+import org.apache.tomcat.util.http.fileupload.RequestContext;
+import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
+import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
+
+public class UploadServlet extends HttpServlet {
+
+    private static final long serialVersionUID = 1L;
+    private static final String UPLOAD_DIRECTORY = "C:/Users/home/Documents/NetBeansProjects/auctionproject/web/product_img";
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (ServletFileUpload.isMultipartContent(request)) {
+            try {
+                List<FileItem> multipart = new ServletFileUpload(new DiskFileItemFactory()).parseRequest((RequestContext) request);
+                for (FileItem item : multipart) {
+                    if (!item.isFormField()) {
+                       
+                        int id = ProductData.getImageId();
+                        item.write(new File(UPLOAD_DIRECTORY + File.separator + id + ".jpg"));
+
+                        ProductData.setImage(UPLOAD_DIRECTORY + File.separator + id + ".jpg", id);
+
+                    }
+                }
+
+            } catch (Exception e) {
+                request.setAttribute("message", "Upload Failed due to " + e);
+            }
+        } else {
+        }
+
+        response.sendRedirect("index.jsp");
+    }
+
+}
